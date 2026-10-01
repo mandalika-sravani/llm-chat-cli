@@ -1,0 +1,75 @@
+# ------------------------------------------------------------
+# LLM Chat CLI configuration
+# ------------------------------------------------------------
+
+# Every provider here speaks the OpenAI-compatible API,
+# so one SDK works for all of them.
+providers:
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_env: GEMINI_API_KEY
+  openai:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+
+default_preset: fast
+
+# Presets bundle a model with its generation settings.
+# Leave a setting out to use the provider's default.
+# context_window is the model's total token limit (input + output).
+presets:
+  fast:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+    context_window: 1000000
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 1024
+
+  smart:
+    provider: gemini
+    model: gemini-3.7-flash
+    context_window: 1000000
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 2048
+
+  precise:          # low randomness: facts, code, extraction
+    provider: gemini
+    model: gemini-3.5-flash-lite
+    context_window: 1000000
+    temperature: 0.0
+    max_tokens: 1024
+
+  creative:         # high randomness: stories, brainstorming
+    provider: gemini
+    model: gemini-3.5-flash-lite
+    context_window: 1000000
+    temperature: 1.3
+    top_p: 1.0
+    max_tokens: 1024
+
+  gpt-mini:         # needs OpenAI credits
+    provider: openai
+    model: gpt-4o-mini
+    context_window: 128000
+    temperature: 0.7
+    max_tokens: 1024
+
+# Prices in USD per 1M tokens (paid tier). Check each provider's pricing
+# page before relying on these; prices change. A model missing here is
+# still tracked, but its cost shows as n/a.
+pricing:
+  gemini-3.5-flash-lite: {input: 0.30, output: 2.50}
+  gemini-3.5-flash:      {input: 1.50, output: 9.00}
+  gemini-3.8-flash:      {input: 0.75, output: 3.75}   # introductory rate
+  gpt-4o-mini:           {input: 0.15, output: 0.60}
+
+settings:
+  system_prompt: "You are a helpful assistant."
+  timeout: 60                 # seconds before a request is abandoned
+  max_attempts: 4             # 1 try + up to 3 retries
+  usage_log: usage_log.jsonl  # one JSON line per request; remove to disable
+  # Our own cap on history size, far below the model's window, to keep
+  # cost per request under control. Change it live with /budget.
+  max_context_tokens: 4000
